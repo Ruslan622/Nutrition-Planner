@@ -150,75 +150,51 @@ class Optimizer:
                                           budget_mode: str,
                                           enforce_variety: bool) -> List[List[Dict]]:
         """
-        Generate MODE-SPECIFIC candidates by:
-        1. Creating a base valid plan
-        2. Intelligently substituting foods based on mode preferences
+        Generate MODE-SPECIFIC candidates by adjusting macronutrient targets.
         
-        CHEAPEST: Substitute expensive proteins with cheap carbs/legumes
-        BALANCED: Keep mostly as-is but ensure some variety
-        PREMIUM: Substitute cheap foods with high-quality proteins
+        Different modes emphasize different nutrients:
+        - CHEAPEST: Lower protein, more carbs -> forces budget-friendly legumes and rice
+        - BALANCED: Standard targets -> balanced mix of proteins and carbs
+        - PREMIUM: Higher protein, more fat, lower carbs -> forces high-quality proteins (meats, fish)
         """
         candidates = []
         
-        # Generate a base plan
-        base_plan = self.planner.generate_plan(
-            target_calories=target_calories,
-            target_protein_g=target_protein_g,
-            target_fat_g=target_fat_g,
-            target_carb_g=target_carb_g,
-            tolerance_calories=tolerance_calories,
-            tolerance_protein=tolerance_protein,
-            enforce_variety=enforce_variety,
-            max_foods=4
-        )
-        
-        if not base_plan:
-            return []
-        
-        # Get food price rankings
-        price_rankings = {}
-        for food in self.calc.food_data.keys():
-            price_per_100g = self.pm.get_price_per_100g(food)
-            price_rankings[food] = price_per_100g
-        
-        sorted_by_price = sorted(price_rankings.items(), key=lambda x: x[1])
-        cheapest_foods = [f[0] for f in sorted_by_price[:4]]  # rice, bread, lentil, chickpea
-        expensive_foods = [f[0] for f in sorted_by_price[-4:]]  # chicken, beef, fish, milk
-        
         if budget_mode == "cheapest":
-            # Strategy: Try multiple max_foods to find cheaper combinations
+            # Cheapest: Lower protein demand (100g instead of 120g)
+            # This allows planner to use more rice/bread instead of expensive proteins
             for max_foods in [3, 4, 5]:
                 plan = self.planner.generate_plan(
                     target_calories=target_calories,
-                    target_protein_g=target_protein_g * 0.95,  # Slightly lower protein
-                    target_fat_g=target_fat_g,
-                    target_carb_g=target_carb_g,
+                    target_protein_g=max(target_protein_g * 0.85, 80),  # 15% lower
+                    target_fat_g=target_fat_g * 0.8 if target_fat_g else None,  # Lower fat
+                    target_carb_g=target_carb_g * 1.1 if target_carb_g else None,  # Higher carbs
                     tolerance_calories=tolerance_calories,
                     tolerance_protein=tolerance_protein,
-                    enforce_variety=False,  # Don't enforce variety - maximize carbs/legumes
+                    enforce_variety=False,  # Allow repetition for cheaper combinations
                     max_foods=max_foods
                 )
                 if plan:
                     candidates.append(plan)
         
         elif budget_mode == "premium":
-            # Strategy: Increase protein target to force more high-quality proteins
+            # Premium: Higher protein demand (140g+ instead of 120g)
+            # This forces planner to include expensive high-quality proteins
             for max_foods in [4, 5, 6]:
                 plan = self.planner.generate_plan(
                     target_calories=target_calories,
-                    target_protein_g=target_protein_g * 1.05,  # 5% higher protein
-                    target_fat_g=target_fat_g,
-                    target_carb_g=target_carb_g * 0.95,  # 5% lower carbs
+                    target_protein_g=target_protein_g * 1.15,  # 15% higher
+                    target_fat_g=target_fat_g * 1.3 if target_fat_g else None,  # More fat (meats)
+                    target_carb_g=target_carb_g * 0.85 if target_carb_g else None,  # Lower carbs
                     tolerance_calories=tolerance_calories,
                     tolerance_protein=tolerance_protein,
-                    enforce_variety=True,  # Enforce variety for premium
+                    enforce_variety=True,  # Enforce variety for quality
                     max_foods=max_foods
                 )
                 if plan:
                     candidates.append(plan)
         
         else:  # balanced
-            # Balanced: Try with various settings
+            # Balanced: Standard targets
             for max_foods in [3, 4, 5]:
                 plan = self.planner.generate_plan(
                     target_calories=target_calories,
@@ -233,9 +209,20 @@ class Optimizer:
                 if plan:
                     candidates.append(plan)
         
-        # If we didn't get enough candidates, add variations of base plan
+        # If we don't have enough candidates, try again with relaxed constraints
         if len(candidates) < 2:
-            candidates.append(base_plan)
+            plan = self.planner.generate_plan(
+                target_calories=target_calories,
+                target_protein_g=target_protein_g,
+                target_fat_g=target_fat_g,
+                target_carb_g=target_carb_g,
+                tolerance_calories=tolerance_calories * 1.5,
+                tolerance_protein=tolerance_protein * 1.5,
+                enforce_variety=False,
+                max_foods=5
+            )
+            if plan:
+                candidates.append(plan)
         
         # Remove duplicates
         unique_candidates = []
