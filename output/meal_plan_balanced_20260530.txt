@@ -1,0 +1,54 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    🥗 NUTRIBUDGET BD MEAL PLAN 🥗                    ║
+║                         Daily Nutrition Receipt                               ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Date: 30 May 2026 (Saturday)
+User: 75kg | Goal: Maintenance
+Plan Type: BALANCED (Cost-Optimized)
+
+┌─ DAILY NUTRITION TARGETS ─────────────────────────────────────────────────┐
+│ Calories:     2795 kcal       │ Protein:  135.6g                        │
+│ Fat:          55.0g          │ Carbs:    432.6g                        │
+│ Fiber:        42.3g                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─ DAILY FOODS (Itemized) ──────────────────────────────────────────────────────┐
+│ Item                          Qty      Cost      Protein     Calories          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Egg (whole, cooked/boiled)     7 pcs   84.00฿      54.6g       651 kcal      │
+│ Lentils / Masoor Daal (cooked, boiled, no salt)   2 cups   52.00฿      36.0g       464 kcal      │
+│ Rice (cooked, white, long-grain)   4 cups   48.00฿      16.2g       780 kcal      │
+│ Bread (white, local/desi roti equivalent) 12 slices   21.60฿      28.8g       900 kcal      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ TOTAL (Daily):                         205.60฿     135.6g      2795 kcal      │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─ BUDGET BREAKDOWN ─────────────────────────────────────────────────────────────┐
+│ Food Item            Daily Cost       Monthly Cost    % of Budget              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Egg (whole, cooked/boiled)   84.00฿/day      2520.00฿/month   40.9% ████████       │
+│ Lentils / Masoor Daal (cooked, boiled, no salt)   52.00฿/day      1560.00฿/month   25.3% █████          │
+│ Rice (cooked, white, long-grain)   48.00฿/day      1440.00฿/month   23.3% ████           │
+│ Bread (white, local/desi roti equivalent)   21.60฿/day       648.00฿/month   10.5% ██             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ TOTAL:                205.60฿/day      6168.00฿/month  100.0%                    │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─ COST EFFICIENCY METRICS ──────────────────────────────────────────────────────┐
+│ Cost per 1000 kcal:         73.56 ฿                                          │
+│ Protein per 1 Taka:         0.660g                                             │
+│ Protein per 100 Taka:        66.0g                                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─ PLAN QUALITY SCORES ──────────────────────────────────────────────────────────┐
+│ Average Protein Quality:      6.2/10                                     │
+│ Food Variety:                   4 different foods                                │
+│ Optimization Mode:         BALANCED                                          │
+│ Strategy:                  Cost & quality balanced                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+────────────────────────────────────────────────────────────────────────────────
+✓ This plan meets your daily nutrition targets while staying within your budget.
+  Prepare these foods at home to save even more money!
+────────────────────────────────────────────────────────────────────────────────

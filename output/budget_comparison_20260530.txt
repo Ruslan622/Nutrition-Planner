@@ -1,0 +1,20 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║               💰 BUDGET MODE COMPARISON RECEIPT 💰               ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌─ COST COMPARISON ──────────────────────────────────────────────────────────────┐
+│ Plan Type    Daily Cost    Monthly Cost    Protein/Day    Quality Score       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ CHEAPEST      169.60฿        5088.00฿         116.6g          5.2/10        │
+│ BALANCED      205.60฿        6168.00฿         135.6g          6.2/10        │
+│ PREMIUM       315.60฿        9468.00฿         138.4g          6.0/10        │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─ RECOMMENDATIONS ──────────────────────────────────────────────────────────────┐
+│ Premium costs 146.00฿ more per day than Cheapest plan.                          │
+│ That's about 4380.00฿ per month for higher quality nutrition.                    │
+│                                                                             │
+│ 🎯 Choose CHEAPEST if your budget is very tight.                             │
+│ ⚖️  Choose BALANCED for good value - recommended for most people.            │
+│ ⭐ Choose PREMIUM if fitness/performance is your priority.                   │
+└─────────────────────────────────────────────────────────────────────────────┘

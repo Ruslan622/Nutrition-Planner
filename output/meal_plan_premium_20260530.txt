@@ -1,0 +1,54 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    🥗 NUTRIBUDGET BD MEAL PLAN 🥗                    ║
+║                         Daily Nutrition Receipt                               ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Date: 30 May 2026 (Saturday)
+User: 75kg | Goal: Maintenance
+Plan Type: PREMIUM (Cost-Optimized)
+
+┌─ DAILY NUTRITION TARGETS ─────────────────────────────────────────────────┐
+│ Calories:     2723 kcal       │ Protein:  138.4g                        │
+│ Fat:          74.0g          │ Carbs:    371.0g                        │
+│ Fiber:        10.7g                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─ DAILY FOODS (Itemized) ──────────────────────────────────────────────────────┐
+│ Item                          Qty      Cost      Protein     Calories          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Beef (lean ground, cooked/pan-broiled)     300g  210.00฿      78.0g       750 kcal      │
+│ Rice (cooked, white, long-grain)   4 cups   48.00฿      16.2g       780 kcal      │
+│ Milk (whole, 3.25% fat)       2 cups   36.00฿      15.4g       293 kcal      │
+│ Bread (white, local/desi roti equivalent) 12 slices   21.60฿      28.8g       900 kcal      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ TOTAL (Daily):                         315.60฿     138.4g      2723 kcal      │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─ BUDGET BREAKDOWN ─────────────────────────────────────────────────────────────┐
+│ Food Item            Daily Cost       Monthly Cost    % of Budget              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Beef (lean ground, cooked/pan-broiled)  210.00฿/day      6300.00฿/month   66.5% █████████████  │
+│ Rice (cooked, white, long-grain)   48.00฿/day      1440.00฿/month   15.2% ███            │
+│ Milk (whole, 3.25% fat)   36.00฿/day      1080.00฿/month   11.4% ██             │
+│ Bread (white, local/desi roti equivalent)   21.60฿/day       648.00฿/month    6.8% █              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ TOTAL:                315.60฿/day      9468.00฿/month  100.0%                    │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─ COST EFFICIENCY METRICS ──────────────────────────────────────────────────────┐
+│ Cost per 1000 kcal:        115.91 ฿                                          │
+│ Protein per 1 Taka:         0.439g                                             │
+│ Protein per 100 Taka:        43.9g                                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─ PLAN QUALITY SCORES ──────────────────────────────────────────────────────────┐
+│ Average Protein Quality:      6.0/10                                     │
+│ Food Variety:                   4 different foods                                │
+│ Optimization Mode:         PREMIUM                                           │
+│ Strategy:                  Maximum nutrition quality                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+────────────────────────────────────────────────────────────────────────────────
+✓ This plan meets your daily nutrition targets while staying within your budget.
+  Prepare these foods at home to save even more money!
+────────────────────────────────────────────────────────────────────────────────
