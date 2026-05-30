@@ -1,0 +1,68 @@
+{
+  "_source": "Bangladesh local market prices (Dhaka, May 2026)",
+  "_unit": "BDT (Bangladeshi Taka)",
+  "_note": "Hardcoded baseline prices. Will be replaced by scraper data in STEP 17.",
+  
+  "rice": {
+    "name": "Rice (cooked, white, long-grain)",
+    "price": 80,
+    "unit": "kg",
+    "notes": "Minuket/regular white rice"
+  },
+  
+  "bread": {
+    "name": "Bread (local roti equivalent)",
+    "price": 60,
+    "unit": "kg",
+    "notes": "Standard loaf bread"
+  },
+  
+  "egg": {
+    "name": "Egg (whole, cooked/boiled)",
+    "price": 12,
+    "unit": "piece",
+    "notes": "Single large egg"
+  },
+  
+  "lentil": {
+    "name": "Lentils / Masoor Daal",
+    "price": 130,
+    "unit": "kg",
+    "notes": "Cooked, boiled"
+  },
+  
+  "chickpea": {
+    "name": "Chickpea / Chhola",
+    "price": 120,
+    "unit": "kg",
+    "notes": "Cooked, boiled"
+  },
+  
+  "chicken": {
+    "name": "Chicken breast (boneless, skinless)",
+    "price": 320,
+    "unit": "kg",
+    "notes": "Per kg of raw/uncooked"
+  },
+  
+  "beef": {
+    "name": "Beef (lean)",
+    "price": 700,
+    "unit": "kg",
+    "notes": "Per kg of raw/uncooked"
+  },
+  
+  "fish": {
+    "name": "Tilapia fish",
+    "price": 200,
+    "unit": "kg",
+    "notes": "Per kg of raw/uncooked"
+  },
+  
+  "milk": {
+    "name": "Milk (full fat, whole)",
+    "price": 75,
+    "unit": "litre",
+    "notes": "Fresh milk per litre"
+  }
+}
