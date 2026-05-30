@@ -23,22 +23,28 @@ class Optimizer:
     3. Budget modes (cheapest, balanced, premium)
     """
     
-    # Optimization modes
+    # Optimization modes with weighted scoring factors
     MODES = {
         "cheapest": {
-            "cost_weight": 1.0,
-            "nutrition_weight": 0.5,
+            "cost_weight": 0.70,
+            "protein_weight": 0.15,
+            "variety_weight": 0.05,
+            "quality_weight": 0.10,
             "description": "Minimize cost (maximum savings)"
         },
         "balanced": {
-            "cost_weight": 0.6,
-            "nutrition_weight": 0.9,
+            "cost_weight": 0.30,
+            "protein_weight": 0.25,
+            "variety_weight": 0.25,
+            "quality_weight": 0.20,
             "description": "Balance cost vs nutrition"
         },
         "premium": {
-            "cost_weight": 0.2,
-            "nutrition_weight": 1.0,
-            "description": "Maximize nutrition quality"
+            "cost_weight": 0.10,
+            "protein_weight": 0.25,
+            "variety_weight": 0.25,
+            "quality_weight": 0.40,
+            "description": "Maximize nutrition quality (higher cost)"
         },
     }
     
@@ -68,7 +74,12 @@ class Optimizer:
                                max_budget_bdt: float = None,
                                enforce_variety: bool = True) -> Tuple[List[Dict], Dict]:
         """
-        Generate nutritionally valid + cost-optimized meal plan.
+        Generate nutritionally valid + cost-optimized meal plan FOR A SPECIFIC BUDGET MODE.
+        
+        Different modes get different food selection strategies:
+        - CHEAPEST: Strongly prefer cheap foods (rice, bread, lentil)
+        - BALANCED: Mix of cost and quality
+        - PREMIUM: Prefer high-quality proteins (chicken, fish, eggs)
         
         Args:
             target_calories: Target calories
@@ -89,19 +100,22 @@ class Optimizer:
             print(f"WARNING: Unknown budget mode '{budget_mode}', using 'balanced'")
             budget_mode = "balanced"
         
-        # Get candidate plans (nutritionally valid)
-        candidates = self._generate_candidate_plans(
+        # STRATEGY: For each mode, generate multiple diverse candidates, then score
+        # but with MODE-SPECIFIC food preferences built in
+        
+        candidates = self._generate_mode_specific_candidates(
             target_calories,
             target_protein_g,
             target_fat_g,
             target_carb_g,
             tolerance_calories,
             tolerance_protein,
+            budget_mode,
             enforce_variety
         )
         
         if not candidates:
-            print("ERROR: No valid candidate plans found")
+            print(f"ERROR: No valid candidate plans found for {budget_mode} mode")
             return [], {}
         
         # Filter by budget if specified
@@ -126,24 +140,27 @@ class Optimizer:
         
         return best_plan, metrics
     
-    def _generate_candidate_plans(self,
-                                  target_calories: float,
-                                  target_protein_g: float,
-                                  target_fat_g: float,
-                                  target_carb_g: float,
-                                  tolerance_calories: float,
-                                  tolerance_protein: float,
-                                  enforce_variety: bool) -> List[List[Dict]]:
+    def _generate_mode_specific_candidates(self,
+                                          target_calories: float,
+                                          target_protein_g: float,
+                                          target_fat_g: float,
+                                          target_carb_g: float,
+                                          tolerance_calories: float,
+                                          tolerance_protein: float,
+                                          budget_mode: str,
+                                          enforce_variety: bool) -> List[List[Dict]]:
         """
-        Generate multiple nutritionally valid candidate plans.
-        These will be scored and ranked by cost.
+        Generate MODE-SPECIFIC candidates by:
+        1. Creating a base valid plan
+        2. Intelligently substituting foods based on mode preferences
         
-        Returns:
-            List of candidate plans
+        CHEAPEST: Substitute expensive proteins with cheap carbs/legumes
+        BALANCED: Keep mostly as-is but ensure some variety
+        PREMIUM: Substitute cheap foods with high-quality proteins
         """
         candidates = []
         
-        # Generate base plan
+        # Generate a base plan
         base_plan = self.planner.generate_plan(
             target_calories=target_calories,
             target_protein_g=target_protein_g,
@@ -152,56 +169,88 @@ class Optimizer:
             tolerance_calories=tolerance_calories,
             tolerance_protein=tolerance_protein,
             enforce_variety=enforce_variety,
-            max_foods=6
+            max_foods=4
         )
         
-        if base_plan:
+        if not base_plan:
+            return []
+        
+        # Get food price rankings
+        price_rankings = {}
+        for food in self.calc.food_data.keys():
+            price_per_100g = self.pm.get_price_per_100g(food)
+            price_rankings[food] = price_per_100g
+        
+        sorted_by_price = sorted(price_rankings.items(), key=lambda x: x[1])
+        cheapest_foods = [f[0] for f in sorted_by_price[:4]]  # rice, bread, lentil, chickpea
+        expensive_foods = [f[0] for f in sorted_by_price[-4:]]  # chicken, beef, fish, milk
+        
+        if budget_mode == "cheapest":
+            # Strategy: Try multiple max_foods to find cheaper combinations
+            for max_foods in [3, 4, 5]:
+                plan = self.planner.generate_plan(
+                    target_calories=target_calories,
+                    target_protein_g=target_protein_g * 0.95,  # Slightly lower protein
+                    target_fat_g=target_fat_g,
+                    target_carb_g=target_carb_g,
+                    tolerance_calories=tolerance_calories,
+                    tolerance_protein=tolerance_protein,
+                    enforce_variety=False,  # Don't enforce variety - maximize carbs/legumes
+                    max_foods=max_foods
+                )
+                if plan:
+                    candidates.append(plan)
+        
+        elif budget_mode == "premium":
+            # Strategy: Increase protein target to force more high-quality proteins
+            for max_foods in [4, 5, 6]:
+                plan = self.planner.generate_plan(
+                    target_calories=target_calories,
+                    target_protein_g=target_protein_g * 1.05,  # 5% higher protein
+                    target_fat_g=target_fat_g,
+                    target_carb_g=target_carb_g * 0.95,  # 5% lower carbs
+                    tolerance_calories=tolerance_calories,
+                    tolerance_protein=tolerance_protein,
+                    enforce_variety=True,  # Enforce variety for premium
+                    max_foods=max_foods
+                )
+                if plan:
+                    candidates.append(plan)
+        
+        else:  # balanced
+            # Balanced: Try with various settings
+            for max_foods in [3, 4, 5]:
+                plan = self.planner.generate_plan(
+                    target_calories=target_calories,
+                    target_protein_g=target_protein_g,
+                    target_fat_g=target_fat_g,
+                    target_carb_g=target_carb_g,
+                    tolerance_calories=tolerance_calories,
+                    tolerance_protein=tolerance_protein,
+                    enforce_variety=enforce_variety,
+                    max_foods=max_foods
+                )
+                if plan:
+                    candidates.append(plan)
+        
+        # If we didn't get enough candidates, add variations of base plan
+        if len(candidates) < 2:
             candidates.append(base_plan)
         
-        # Try with different max_foods to get variations
-        for max_foods in [4, 5]:
-            alt_plan = self.planner.generate_plan(
-                target_calories=target_calories,
-                target_protein_g=target_protein_g,
-                target_fat_g=target_fat_g,
-                target_carb_g=target_carb_g,
-                tolerance_calories=tolerance_calories,
-                tolerance_protein=tolerance_protein,
-                enforce_variety=enforce_variety,
-                max_foods=max_foods
-            )
-            if alt_plan:
-                # Check if this is a new plan (not in candidates)
-                is_new = True
-                for existing in candidates:
-                    if len(alt_plan) == len(existing):
-                        foods_match = all(
-                            alt_plan[i]["food"] == existing[i]["food"]
-                            for i in range(len(alt_plan))
-                        )
-                        if foods_match:
-                            is_new = False
-                            break
-                
-                if is_new:
-                    candidates.append(alt_plan)
+        # Remove duplicates
+        unique_candidates = []
+        for plan in candidates:
+            foods_in_plan = sorted([item["food"] for item in plan])
+            is_duplicate = False
+            for existing in unique_candidates:
+                existing_foods = sorted([item["food"] for item in existing])
+                if foods_in_plan == existing_foods:
+                    is_duplicate = True
+                    break
+            if not is_duplicate:
+                unique_candidates.append(plan)
         
-        # If still no candidates, try with relaxed tolerances
-        if not candidates:
-            relaxed_plan = self.planner.generate_plan(
-                target_calories=target_calories,
-                target_protein_g=target_protein_g,
-                target_fat_g=target_fat_g,
-                target_carb_g=target_carb_g,
-                tolerance_calories=tolerance_calories * 1.5,
-                tolerance_protein=tolerance_protein * 1.5,
-                enforce_variety=enforce_variety,
-                max_foods=6
-            )
-            if relaxed_plan:
-                candidates.append(relaxed_plan)
-        
-        return candidates
+        return unique_candidates
     
     def _score_plans(self,
                     plans: List[List[Dict]],
@@ -209,7 +258,12 @@ class Optimizer:
                     target_protein_g: float,
                     target_calories: float) -> List[Tuple]:
         """
-        Score candidate plans based on budget mode.
+        Score candidate plans based on budget mode with weighted factors.
+        
+        Weighted scoring:
+        - CHEAPEST: Emphasize cost (70%), minimal quality (10%)
+        - BALANCED: Equal weight cost/variety/quality (30%/25%/20%)
+        - PREMIUM: Emphasize quality (40%), cost lower priority (10%)
         
         Returns:
             List of (plan, score, metrics) tuples, sorted by score (highest first)
@@ -218,43 +272,75 @@ class Optimizer:
         
         mode_config = self.MODES[budget_mode]
         cost_weight = mode_config["cost_weight"]
-        nutrition_weight = mode_config["nutrition_weight"]
+        protein_weight = mode_config["protein_weight"]
+        variety_weight = mode_config["variety_weight"]
+        quality_weight = mode_config["quality_weight"]
         
         for plan in plans:
-            # Calculate metrics
+            # ─── Calculate component scores ───────────────────────────────────
+            
+            # 1. COST SCORE (lower cost = higher score)
             daily_cost = self.cc.calculate_daily_cost(plan)
+            # Normalize: assume typical plan costs 100-250 BDT
+            cost_normalized = min(daily_cost / 250, 1.0)
+            cost_score = 1.0 - cost_normalized  # Invert: lower cost = higher score
+            
+            # 2. PROTEIN SCORE (how close to target)
             total_protein = sum(item.get("protein_g", 0) for item in plan)
+            protein_diff = abs(total_protein - target_protein_g) / target_protein_g if target_protein_g > 0 else 0
+            protein_score = max(0, 1.0 - protein_diff)
+            
+            # 3. CALORIE SCORE (how close to target)
             total_calories = sum(item.get("calories", 0) for item in plan)
-            protein_per_taka = self.cc.calculate_protein_per_taka(plan)
+            calorie_diff = abs(total_calories - target_calories) / target_calories if target_calories > 0 else 0
+            calorie_score = max(0, 1.0 - calorie_diff)
             
-            # Normalize metrics to [0, 1] for scoring
-            # Lower cost is better → normalize inversely
-            cost_score = 1.0 / (1.0 + daily_cost / 500)  # Sigmoid-like normalization
+            # 4. VARIETY SCORE (number of different foods + category diversity)
+            num_foods = len(plan)
+            variety_score = min(num_foods / 5, 1.0)  # Max 5 foods = perfect variety
             
-            # Protein accuracy: how close to target?
-            protein_error = abs(total_protein - target_protein_g) / target_protein_g if target_protein_g > 0 else 0
-            protein_score = max(0, 1.0 - protein_error)
+            # Check category diversity
+            categories = set([item.get("category", "other") for item in plan])
+            category_diversity = len(categories) / 5  # Max 5 categories possible
+            variety_score = (variety_score + category_diversity) / 2
             
-            # Calorie accuracy: how close to target?
-            calorie_error = abs(total_calories - target_calories) / target_calories if target_calories > 0 else 0
-            calorie_score = max(0, 1.0 - calorie_error)
+            # 5. QUALITY SCORE (average protein quality of foods in plan)
+            quality_scores = []
+            for item in plan:
+                food_key = item["food"]
+                if food_key in self.calc.food_data:
+                    protein_quality = self.calc.food_data[food_key].get("protein_quality", 5) / 10
+                    quality_scores.append(protein_quality)
             
-            nutrition_score = (protein_score + calorie_score) / 2
+            quality_score = sum(quality_scores) / len(quality_scores) if quality_scores else 0.5
             
-            # Combined score based on mode
-            # More weight on cost in "cheapest", more on nutrition in "premium"
-            combined_score = (cost_weight * cost_score) + (nutrition_weight * nutrition_score)
+            # ─── Combine scores based on mode weights ───────────────────────────────
+            
+            # Macro nutrition score (average of protein + calorie accuracy)
+            macro_score = (protein_score + calorie_score) / 2
+            
+            # Combined score with mode-specific weights
+            combined_score = (
+                (cost_weight * cost_score) +
+                (protein_weight * macro_score) +
+                (variety_weight * variety_score) +
+                (quality_weight * quality_score)
+            )
             
             metrics = {
                 "daily_cost_bdt": daily_cost,
                 "monthly_cost_bdt": self.cc.calculate_monthly_cost(plan),
                 "total_protein_g": total_protein,
                 "total_calories": total_calories,
-                "protein_per_taka": protein_per_taka,
+                "protein_per_taka": self.cc.calculate_protein_per_taka(plan),
                 "protein_per_100_taka": self.cc.calculate_protein_per_100_taka(plan),
                 "calories_per_100_taka": self.cc.calculate_calories_per_taka(plan) * 100,
+                "num_foods": num_foods,
+                "avg_protein_quality": round(quality_score * 10, 1),
+                "variety_score": round(variety_score, 3),
                 "cost_score": round(cost_score, 3),
-                "nutrition_score": round(nutrition_score, 3),
+                "protein_score": round(macro_score, 3),
+                "quality_score": round(quality_score, 3),
                 "combined_score": round(combined_score, 3),
                 "budget_mode": budget_mode,
             }
