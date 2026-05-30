@@ -47,14 +47,14 @@ All meal plans are formatted as professional receipts with:
 
 ## Generated Files
 
-Run `test_budget_modes.py` to generate all outputs:
+Run `test_budget_modes.py` to generate all PDF outputs:
 
 ```
 output/
-  ├─ meal_plan_cheapest_20260530.txt    (169.60 BDT/day)
-  ├─ meal_plan_balanced_20260530.txt    (205.60 BDT/day)
-  ├─ meal_plan_premium_20260530.txt     (315.60 BDT/day)
-  └─ budget_comparison_20260530.txt     (Side-by-side comparison)
+  ├─ meal_plan_cheapest_20260530.pdf    (169.60 BDT/day)
+  ├─ meal_plan_balanced_20260530.pdf    (205.60 BDT/day)
+  ├─ meal_plan_premium_20260530.pdf     (315.60 BDT/day)
+  └─ budget_comparison_20260530.pdf     (Side-by-side comparison)
 ```
 
 ## Sample Results (75kg, maintenance goal, 2700 kcal/day)

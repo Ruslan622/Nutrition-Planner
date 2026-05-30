@@ -81,7 +81,7 @@ def generate_formatted_output(output_dir: str = "output"):
     print(f"✓ Generated {len(plans_by_mode)} plans\n")
     
     # Generate and save receipts for each mode
-    print("[OUTPUT] Generating formatted receipts...\n")
+    print("[OUTPUT] Generating formatted PDF receipts...\n")
     
     for mode in ["cheapest", "balanced", "premium"]:
         if mode not in plans_by_mode:
@@ -91,8 +91,12 @@ def generate_formatted_output(output_dir: str = "output"):
         totals = planner.calculate_plan_totals(plan)
         cost_info = cc.calculate_plan_cost(plan)
         
-        # Generate receipt
-        receipt = formatter.format_meal_receipt(
+        # Save as PDF
+        filename = f"meal_plan_{mode}_{datetime.now().strftime('%Y%m%d')}.pdf"
+        filepath = output_path / filename
+        
+        success = formatter.save_meal_receipt_pdf(
+            filepath=str(filepath),
             plan=plan,
             totals=totals,
             cost_info=cost_info,
@@ -100,40 +104,37 @@ def generate_formatted_output(output_dir: str = "output"):
             user_profile=user
         )
         
-        # Save to file
-        filename = f"meal_plan_{mode}_{datetime.now().strftime('%Y%m%d')}.txt"
-        filepath = output_path / filename
-        
-        with open(filepath, "w", encoding="utf-8") as f:
-            f.write(receipt)
-        
-        print(f"✓ Saved: {filename}")
-        print(f"  Cost: {metrics['daily_cost_bdt']:.2f} BDT/day")
-        print(f"  Quality: {metrics.get('avg_protein_quality', 5.0):.1f}/10")
-        print(f"  Foods: {metrics['num_foods']} different foods\n")
+        if success:
+            print(f"✓ Saved: {filename}")
+            print(f"  Cost: {metrics['daily_cost_bdt']:.2f} BDT/day")
+            print(f"  Quality: {metrics.get('avg_protein_quality', 5.0):.1f}/10")
+            print(f"  Foods: {metrics['num_foods']} different foods\n")
+        else:
+            print(f"✗ Failed to save: {filename}\n")
     
     # Generate comparison receipt
     print("[COMPARISON] Generating budget mode comparison...")
-    comparison = formatter.format_budget_comparison(plans_by_mode)
+    success = formatter.save_budget_comparison_pdf(
+        filepath=str(output_path / f"budget_comparison_{datetime.now().strftime('%Y%m%d')}.pdf"),
+        plans_by_mode=plans_by_mode
+    )
     
-    comp_filename = f"budget_comparison_{datetime.now().strftime('%Y%m%d')}.txt"
-    comp_filepath = output_path / comp_filename
-    
-    with open(comp_filepath, "w", encoding="utf-8") as f:
-        f.write(comparison)
-    
-    print(f"✓ Saved: {comp_filename}\n")
+    if success:
+        comp_filename = f"budget_comparison_{datetime.now().strftime('%Y%m%d')}.pdf"
+        print(f"✓ Saved: {comp_filename}\n")
+    else:
+        print("✗ Failed to save comparison\n")
     
     # Print summary
     print("="*80)
-    print("SUMMARY: Budget Modes Are Now Differentiated!")
+    print("SUMMARY: Budget Modes Generated Successfully!")
     print("="*80)
     
-    print("\n📋 FILES GENERATED:")
+    print("\n📋 PDF FILES GENERATED:")
     for mode in ["cheapest", "balanced", "premium"]:
         if mode in plans_by_mode:
-            print(f"  • meal_plan_{mode}_*.txt")
-    print(f"  • budget_comparison_*.txt")
+            print(f"  • meal_plan_{mode}_*.pdf")
+    print(f"  • budget_comparison_*.pdf")
     
     print(f"\n📍 Location: {output_path}\n")
     
