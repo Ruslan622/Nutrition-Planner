@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 from datetime import datetime
 
-sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).parent.parent / 'backend'))
 
 from core.calculator import NutritionCalculator
 from core.planner import MealPlanner

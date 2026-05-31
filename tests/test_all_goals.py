@@ -2,6 +2,9 @@
 Test all goal modes with new constraint system.
 Tests: STEP 1-4 (constraints, categories, variety, meal distribution)
 """
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent / 'backend'))
 
 from core.calculator import NutritionCalculator
 from core.planner import MealPlanner

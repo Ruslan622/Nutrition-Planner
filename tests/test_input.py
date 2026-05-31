@@ -5,6 +5,10 @@ Simulates user input to test the MVP workflow.
 
 import sys
 from io import StringIO
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent / 'backend'))
+
 from core.calculator import NutritionCalculator
 from core.planner import MealPlanner
 from plans.report import MealPlanReport

@@ -1,0 +1,12 @@
+{
+  "pythonVersion": "3.12",
+  "pythonPlatform": "Windows",
+  "typeCheckingMode": "basic",
+  "include": ["backend", "tests", "debug", "scripts"],
+  "exclude": [".venv", "**/__pycache__"],
+  "extraPaths": ["backend"],
+  "stubPath": "",
+  "defineConstant": {
+    "DEBUG": true
+  }
+}

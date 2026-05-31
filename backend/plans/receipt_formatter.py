@@ -76,8 +76,13 @@ class ReceiptFormatter:
         lines.append(f"│ Fat:      {totals['total_fat_g']:>8.1f}g          │ Carbs:   {totals['total_carb_g']:>6.1f}g                        │")
         if totals.get('total_fiber_g'):
             lines.append(f"│ Fiber:    {totals['total_fiber_g']:>8.1f}g                                              │")
-        lines.append("└─────────────────────────────────────────────────────────────────────────────┘")
-        
+        lines.append("└─────────────────────────────────────────────────────────────────────────────┘")        
+        # Micronutrients
+        lines.append("\n┌─ MICRONUTRIENT PROFILE ────────────────────────────────────────────────────────┐")
+        lines.append(f"│ Iron:       {totals.get('total_iron_mg', 0):>6.1f} mg (RDA: 8-18mg)     │ Calcium:  {totals.get('total_calcium_mg', 0):>6.0f} mg (RDA: 1000mg)   │")
+        lines.append(f"│ Vitamin D:  {totals.get('total_vitamin_d_mcg', 0):>6.1f} mcg (RDA: 15mcg)   │ Vitamin C: {totals.get('total_vitamin_c_mg', 0):>6.1f} mg (RDA: 75-90mg) │")
+        lines.append(f"│ Potassium:  {totals.get('total_potassium_mg', 0):>6.0f} mg (RDA: 2600-3400mg)                             │")
+        lines.append("└─────────────────────────────────────────────────────────────────────────────┘")        
         # Foods itemized (like receipt)
         lines.append("\n┌─ DAILY FOODS (Itemized) ──────────────────────────────────────────────────────┐")
         lines.append("│ Item                          Qty      Cost      Protein     Calories          │")
@@ -299,6 +304,26 @@ class ReceiptFormatter:
                 ('PADDING', (0, 0), (-1, -1), 8),
             ]))
             story.append(targets_table)
+            story.append(Spacer(1, 0.2*inch))
+            
+            # Micronutrients table
+            story.append(Paragraph("<b>Micronutrient Profile</b>", getSampleStyleSheet()['Heading3']))
+            micronutrient_data = [
+                [f"Iron: {totals.get('total_iron_mg', 0):.1f} mg (RDA: 8-18mg)", 
+                 f"Calcium: {totals.get('total_calcium_mg', 0):.0f} mg (RDA: 1000mg)"],
+                [f"Vitamin D: {totals.get('total_vitamin_d_mcg', 0):.1f} mcg (RDA: 15mcg)",
+                 f"Vitamin C: {totals.get('total_vitamin_c_mg', 0):.1f} mg (RDA: 75-90mg)"],
+                [f"Potassium: {totals.get('total_potassium_mg', 0):.0f} mg (RDA: 2600-3400mg)",
+                 ""],
+            ]
+            micronutrient_table = Table(micronutrient_data, colWidths=[3.5*inch, 3.5*inch])
+            micronutrient_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#FFF3E0')),
+                ('GRID', (0, 0), (-1, -1), 1, colors.grey),
+                ('FONT', (0, 0), (-1, -1), 'Helvetica', 10),
+                ('PADDING', (0, 0), (-1, -1), 8),
+            ]))
+            story.append(micronutrient_table)
             story.append(Spacer(1, 0.2*inch))
             
             # Foods table

@@ -4,7 +4,7 @@ Debug full optimizer flow.
 
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).parent.parent / 'backend'))
 
 from core.calculator import NutritionCalculator
 from core.planner import MealPlanner
@@ -44,13 +44,14 @@ else:
     
     # Step through manually
     print("\n[2] Testing candidate generation...")
-    candidates = opt._generate_candidate_plans(
+    candidates = opt._generate_mode_specific_candidates(
         target_calories=targets["target_calories"],
         target_protein_g=targets["target_protein_g"],
         target_fat_g=targets["target_fat_g"],
         target_carb_g=targets["target_carb_g"],
         tolerance_calories=150,
         tolerance_protein=10,
+        budget_mode="balanced",
         enforce_variety=True
     )
     print(f"Candidates: {len(candidates)}")

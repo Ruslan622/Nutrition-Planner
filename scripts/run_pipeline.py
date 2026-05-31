@@ -11,9 +11,12 @@ import subprocess
 import sys
 from pathlib import Path
 
+# Add backend to path so tests can find modules
+sys.path.insert(0, str(Path(__file__).parent.parent / 'backend'))
+
 def run_test(test_file: str):
     """Run a test file and handle output."""
-    test_path = Path(__file__).parent / test_file
+    test_path = Path(__file__).parent.parent / 'tests' / test_file
     
     if not test_path.exists():
         print(f"❌ {test_file} not found!")
