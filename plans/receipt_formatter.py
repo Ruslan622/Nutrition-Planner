@@ -101,7 +101,7 @@ class ReceiptFormatter:
             else:
                 qty_display = f"{qty_g:.0f}g"
             
-            lines.append(f"│ {food_name:<27} {qty_display:>8} {cost:>7.2f}฿ {protein:>9.1f}g {calories:>9.0f} kcal      │")
+            lines.append(f"│ {food_name:<27} {qty_display:>8} Tk. {cost:>7.2f} {protein:>9.1f}g {calories:>9.0f} kcal      │")
         
         lines.append("├─────────────────────────────────────────────────────────────────────────────┤")
         
@@ -109,7 +109,7 @@ class ReceiptFormatter:
         total_cost = cost_info["total_cost_bdt"]
         total_protein = totals["total_protein_g"]
         total_calories = totals["total_calories"]
-        lines.append(f"│ TOTAL (Daily):               {'':>8} {total_cost:>7.2f}฿ {total_protein:>9.1f}g {total_calories:>9.0f} kcal      │")
+        lines.append(f"│ TOTAL (Daily):               {'':>8} Tk. {total_cost:>7.2f} {total_protein:>9.1f}g {total_calories:>9.0f} kcal      │")
         lines.append("└─────────────────────────────────────────────────────────────────────────────┘")
         
         # Cost breakdown
@@ -122,16 +122,16 @@ class ReceiptFormatter:
             monthly = cost * 30
             pct = (cost / total_cost) * 100 if total_cost > 0 else 0
             bar = "█" * int(pct / 5)  # 20 char bar = 100%
-            lines.append(f"│ {food_name:<20} {cost:>7.2f}฿/day      {monthly:>7.2f}฿/month  {pct:>5.1f}% {bar:<15}│")
+            lines.append(f"│ {food_name:<20} Tk. {cost:>7.2f}/day      Tk. {monthly:>7.2f}/month  {pct:>5.1f}% {bar:<15}│")
         
         lines.append("├─────────────────────────────────────────────────────────────────────────────┤")
         monthly_total = total_cost * 30
-        lines.append(f"│ TOTAL:               {total_cost:>7.2f}฿/day      {monthly_total:>7.2f}฿/month  100.0%                    │")
+        lines.append(f"│ TOTAL:               Tk. {total_cost:>7.2f}/day      Tk. {monthly_total:>7.2f}/month  100.0%                    │")
         lines.append("└─────────────────────────────────────────────────────────────────────────────┘")
         
         # Cost efficiency metrics
         lines.append("\n┌─ COST EFFICIENCY METRICS ──────────────────────────────────────────────────────┐")
-        lines.append(f"│ Cost per 1000 kcal:        {cost_info['total_cost_bdt'] / (total_calories/1000):>6.2f} ฿                                          │")
+        lines.append(f"│ Cost per 1000 kcal:        Tk. {cost_info['total_cost_bdt'] / (total_calories/1000):>6.2f}                                          │")
         protein_per_taka = total_protein / total_cost if total_cost > 0 else 0
         lines.append(f"│ Protein per 1 Taka:        {protein_per_taka:>6.3f}g                                             │")
         lines.append(f"│ Protein per 100 Taka:      {protein_per_taka * 100:>6.1f}g                                            │")
@@ -201,7 +201,7 @@ class ReceiptFormatter:
                 quality = metrics.get("avg_protein_quality", 5.0)
                 
                 mode_label = mode.upper().ljust(12)
-                lines.append(f"│ {mode_label} {daily:>7.2f}฿        {monthly:>7.2f}฿        {protein:>6.1f}g         {quality:>4.1f}/10        │")
+                lines.append(f"│ {mode_label} Tk. {daily:>7.2f}        Tk. {monthly:>7.2f}        {protein:>6.1f}g         {quality:>4.1f}/10        │")
         
         lines.append("└─────────────────────────────────────────────────────────────────────────────┘")
         
@@ -211,8 +211,8 @@ class ReceiptFormatter:
             cheapest = plans_by_mode["cheapest"][1]["daily_cost_bdt"]
             premium = plans_by_mode["premium"][1]["daily_cost_bdt"]
             diff = premium - cheapest
-            lines.append(f"│ Premium costs {diff:.2f}฿ more per day than Cheapest plan.                          │")
-            lines.append(f"│ That's about {diff*30:.2f}฿ per month for higher quality nutrition.                    │")
+            lines.append(f"│ Premium costs Tk. {diff:.2f} more per day than Cheapest plan.                          │")
+            lines.append(f"│ That's about Tk. {diff*30:.2f} per month for higher quality nutrition.                    │")
         
         lines.append("│                                                                             │")
         lines.append("│ 🎯 Choose CHEAPEST if your budget is very tight.                             │")
@@ -325,7 +325,7 @@ class ReceiptFormatter:
                 foods_data.append([
                     food_name[:25],
                     qty_display,
-                    f"฿{cost:.2f}",
+                    f"Tk. {cost:.2f}",
                     f"{protein:.1f}g",
                     f"{calories:.0f} kcal"
                 ])
@@ -337,7 +337,7 @@ class ReceiptFormatter:
             foods_data.append([
                 "<b>TOTAL (Daily)</b>",
                 "",
-                f"<b>฿{total_cost:.2f}</b>",
+                f"<b>Tk. {total_cost:.2f}</b>",
                 f"<b>{total_protein:.1f}g</b>",
                 f"<b>{total_calories:.0f} kcal</b>"
             ])
@@ -369,15 +369,15 @@ class ReceiptFormatter:
                 pct = (cost / total_cost) * 100 if total_cost > 0 else 0
                 cost_data.append([
                     food_name[:20],
-                    f"฿{cost:.2f}/day",
-                    f"฿{monthly:.2f}/month",
+                    f"Tk. {cost:.2f}/day",
+                    f"Tk. {monthly:.2f}/month",
                     f"{pct:.1f}%"
                 ])
             
             cost_data.append([
                 "<b>TOTAL</b>",
-                f"<b>฿{total_cost:.2f}/day</b>",
-                f"<b>฿{total_cost*30:.2f}/month</b>",
+                f"<b>Tk. {total_cost:.2f}/day</b>",
+                f"<b>Tk. {total_cost*30:.2f}/month</b>",
                 "<b>100.0%</b>"
             ])
             
@@ -400,7 +400,7 @@ class ReceiptFormatter:
             # Efficiency metrics
             story.append(Paragraph("<b>Cost Efficiency Metrics</b>", getSampleStyleSheet()['Heading3']))
             metrics_data = [
-                [f"Cost per 1000 kcal:", f"฿{total_cost / (total_calories/1000):.2f}"],
+                [f"Cost per 1000 kcal:", f"Tk. {total_cost / (total_calories/1000):.2f}"],
                 [f"Protein per Taka:", f"{(total_protein/total_cost):.3f}g"],
             ]
             metrics_table = Table(metrics_data, colWidths=[3*inch, 3*inch])
@@ -466,8 +466,8 @@ class ReceiptFormatter:
                     
                     comp_data.append([
                         mode.upper(),
-                        f"฿{daily:.2f}",
-                        f"฿{monthly:.2f}",
+                        f"Tk. {daily:.2f}",
+                        f"Tk. {monthly:.2f}",
                         f"{protein:.1f}g",
                         f"{quality:.1f}/10"
                     ])
@@ -496,8 +496,8 @@ class ReceiptFormatter:
                 monthly_diff = diff * 30
                 
                 rec_text = f"""
-                <b>Cost Difference:</b> Premium costs ฿{diff:.2f} more per day than Cheapest plan.<br/>
-                That's about ฿{monthly_diff:.2f} per month for higher quality nutrition.<br/>
+                <b>Cost Difference:</b> Premium costs Tk. {diff:.2f} more per day than Cheapest plan.<br/>
+                That's about Tk. {monthly_diff:.2f} per month for higher quality nutrition.<br/>
                 <br/>
                 <b>🎯 Choose CHEAPEST</b> if your budget is very tight.<br/>
                 <b>⚖️ Choose BALANCED</b> for good value - recommended for most people.<br/>
