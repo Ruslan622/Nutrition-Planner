@@ -112,14 +112,14 @@ class NutritionCalculator:
     
     def get_food_macros(self, food_key: str, quantity_g: float = 100) -> dict:
         """
-        Get macro values for a food at given quantity.
+        Get macro and micronutrient values for a food at given quantity.
         
         Args:
             food_key: Key in food_macros.json (e.g., "rice", "chicken")
             quantity_g: Quantity in grams
             
         Returns:
-            Dict with calories, protein_g, fat_g, carb_g, fiber_g, category, constraints
+            Dict with calories, protein_g, fat_g, carb_g, fiber_g, micronutrients, category, constraints
         """
         if food_key not in self.food_data:
             raise ValueError(f"Food '{food_key}' not in database")
@@ -135,6 +135,12 @@ class NutritionCalculator:
             "fat_g": round(food["fat_per_100"] * multiplier, 1),
             "carb_g": round(food["carb_per_100"] * multiplier, 1),
             "fiber_g": round(food["fiber_per_100"] * multiplier, 1),
+            # Micronutrients
+            "iron_mg": round(food.get("iron_mg_per_100", 0) * multiplier, 2),
+            "calcium_mg": round(food.get("calcium_mg_per_100", 0) * multiplier, 1),
+            "vitamin_d_mcg": round(food.get("vitamin_d_mcg_per_100", 0) * multiplier, 2),
+            "vitamin_c_mg": round(food.get("vitamin_c_mg_per_100", 0) * multiplier, 2),
+            "potassium_mg": round(food.get("potassium_mg_per_100", 0) * multiplier, 1),
             "category": food.get("category", "other"),
             "min_serving_g": food.get("min_serving_g", 50),
             "max_serving_g": food.get("max_serving_g", 500),

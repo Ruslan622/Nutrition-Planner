@@ -168,6 +168,11 @@ class MealPlanner:
                     "fat_g": macros["fat_g"],
                     "carb_g": macros["carb_g"],
                     "fiber_g": macros["fiber_g"],
+                    "iron_mg": macros.get("iron_mg", 0),
+                    "calcium_mg": macros.get("calcium_mg", 0),
+                    "vitamin_d_mcg": macros.get("vitamin_d_mcg", 0),
+                    "vitamin_c_mg": macros.get("vitamin_c_mg", 0),
+                    "potassium_mg": macros.get("potassium_mg", 0),
                     "category": category,
                 })
                 current_calories += macros["calories"]
@@ -231,6 +236,11 @@ class MealPlanner:
                             "fat_g": macros["fat_g"],
                             "carb_g": macros["carb_g"],
                             "fiber_g": macros["fiber_g"],
+                            "iron_mg": macros.get("iron_mg", 0),
+                            "calcium_mg": macros.get("calcium_mg", 0),
+                            "vitamin_d_mcg": macros.get("vitamin_d_mcg", 0),
+                            "vitamin_c_mg": macros.get("vitamin_c_mg", 0),
+                            "potassium_mg": macros.get("potassium_mg", 0),
                             "category": macros.get("category", "other"),
                         })
                         total_cals += macros["calories"]
@@ -331,19 +341,29 @@ class MealPlanner:
                 "fat_g": macros["fat_g"],
                 "carb_g": macros["carb_g"],
                 "fiber_g": macros["fiber_g"],
+                "iron_mg": macros.get("iron_mg", 0),
+                "calcium_mg": macros.get("calcium_mg", 0),
+                "vitamin_d_mcg": macros.get("vitamin_d_mcg", 0),
+                "vitamin_c_mg": macros.get("vitamin_c_mg", 0),
+                "potassium_mg": macros.get("potassium_mg", 0),
                 "category": item.get("category", "mixed"),
             })
         
         return adjusted_plan
     
     def calculate_plan_totals(self, plan: List[Dict]) -> Dict:
-        """Calculate total macros for a plan."""
+        """Calculate total macros and micronutrients for a plan."""
         totals = {
             "total_calories": 0,
             "total_protein_g": 0,
             "total_fat_g": 0,
             "total_carb_g": 0,
             "total_fiber_g": 0,
+            "total_iron_mg": 0,
+            "total_calcium_mg": 0,
+            "total_vitamin_d_mcg": 0,
+            "total_vitamin_c_mg": 0,
+            "total_potassium_mg": 0,
         }
         
         for item in plan:
@@ -352,6 +372,11 @@ class MealPlanner:
             totals["total_fat_g"] += item["fat_g"]
             totals["total_carb_g"] += item["carb_g"]
             totals["total_fiber_g"] += item["fiber_g"]
+            totals["total_iron_mg"] += item.get("iron_mg", 0)
+            totals["total_calcium_mg"] += item.get("calcium_mg", 0)
+            totals["total_vitamin_d_mcg"] += item.get("vitamin_d_mcg", 0)
+            totals["total_vitamin_c_mg"] += item.get("vitamin_c_mg", 0)
+            totals["total_potassium_mg"] += item.get("potassium_mg", 0)
         
         return {k: round(v, 1) for k, v in totals.items()}
     

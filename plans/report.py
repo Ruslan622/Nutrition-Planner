@@ -47,6 +47,15 @@ class MealPlanReport:
         lines.append(f"  Fiber:    {totals['total_fiber_g']:.1f}g")
         lines.append("")
         
+        # Micronutrients
+        lines.append("MICRONUTRIENTS:")
+        lines.append(f"  Iron:       {totals.get('total_iron_mg', 0):.1f} mg (RDA: 8-18mg)")
+        lines.append(f"  Calcium:    {totals.get('total_calcium_mg', 0):.0f} mg (RDA: 1000mg)")
+        lines.append(f"  Vitamin D:  {totals.get('total_vitamin_d_mcg', 0):.1f} mcg (RDA: 15mcg)")
+        lines.append(f"  Vitamin C:  {totals.get('total_vitamin_c_mg', 0):.1f} mg (RDA: 75-90mg)")
+        lines.append(f"  Potassium:  {totals.get('total_potassium_mg', 0):.0f} mg (RDA: 2600-3400mg)")
+        lines.append("")
+        
         # Foods list with human-readable portions
         lines.append("FOODS TO EAT:")
         for item in plan:
@@ -99,6 +108,14 @@ class MealPlanReport:
         lines.append(f"  Calories: {totals['total_calories']:.0f} kcal  |  "
                     f"Protein: {totals['total_protein_g']:.1f}g  |  "
                     f"Carbs: {totals['total_carb_g']:.1f}g")
+        lines.append("")
+        
+        # Micronutrients summary
+        lines.append("MICRONUTRIENTS:")
+        lines.append(f"  Iron: {totals.get('total_iron_mg', 0):.1f}mg  |  "
+                    f"Calcium: {totals.get('total_calcium_mg', 0):.0f}mg  |  "
+                    f"Vitamin D: {totals.get('total_vitamin_d_mcg', 0):.1f}mcg  |  "
+                    f"Vitamin C: {totals.get('total_vitamin_c_mg', 0):.1f}mg")
         lines.append("")
         
         # Breakfast
