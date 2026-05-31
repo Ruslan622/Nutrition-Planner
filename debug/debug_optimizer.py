@@ -20,14 +20,15 @@ opt = Optimizer(calc, planner, pm, cc)
 
 targets = calc.calculate_targets(2697, 75, "maintenance")
 
-print("[1] Testing _generate_candidate_plans...")
-candidates = opt._generate_candidate_plans(
+print("[1] Testing _generate_mode_specific_candidates...")
+candidates = opt._generate_mode_specific_candidates(
     target_calories=targets["target_calories"],
     target_protein_g=targets["target_protein_g"],
     target_fat_g=targets["target_fat_g"],
     target_carb_g=targets["target_carb_g"],
     tolerance_calories=150,
     tolerance_protein=10,
+    budget_mode="balanced",
     enforce_variety=True
 )
 

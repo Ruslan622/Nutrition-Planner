@@ -227,13 +227,128 @@ class ReceiptFormatter:
         
         return "\n".join(lines)
     
+    def format_meal_plan_receipt(self,
+                                plan: List[Dict],
+                                meals: Dict,
+                                totals: Dict,
+                                cost_info: Dict,
+                                user_profile: Dict = None) -> str:
+        """
+        Format meal plan organized by breakfast, lunch, dinner.
+        
+        Args:
+            plan: Daily plan (for reference)
+            meals: Dict from MealPlanner.distribute_to_meals()
+            totals: Nutritional totals
+            cost_info: Cost breakdown
+            user_profile: User info (optional)
+            
+        Returns:
+            Formatted string with meal-based layout
+        """
+        lines = []
+        
+        # Header
+        lines.append("┌" + "─" * 79 + "┐")
+        lines.append("│" + " " * 15 + "🥗 NUTRIBUDGET BD MEAL PLAN 🥗" + " " * 33 + "│")
+        lines.append("│" + " " * 25 + "Daily Nutrition Receipt" + " " * 31 + "│")
+        lines.append("└" + "─" * 79 + "┘")
+        
+        # Daily summary
+        lines.append("")
+        lines.append("┌─ DAILY SUMMARY ────────────────────────────────────────────────────────────┐")
+        lines.append(f"│ Calories: {totals['total_calories']:>8.0f} kcal       │ Protein: {totals['total_protein_g']:>6.1f}g                        │")
+        lines.append(f"│ Fat:      {totals['total_fat_g']:>8.1f}g          │ Carbs:   {totals['total_carb_g']:>6.1f}g                        │")
+        if totals.get('total_fiber_g'):
+            lines.append(f"│ Fiber:    {totals['total_fiber_g']:>8.1f}g                                              │")
+        lines.append("└─────────────────────────────────────────────────────────────────────────────┘")
+        
+        # Micronutrients
+        lines.append("\n┌─ MICRONUTRIENT PROFILE ────────────────────────────────────────────────────────┐")
+        lines.append(f"│ Iron:       {totals.get('total_iron_mg', 0):>6.1f} mg (RDA: 8-18mg)     │ Calcium:  {totals.get('total_calcium_mg', 0):>6.0f} mg (RDA: 1000mg)   │")
+        lines.append(f"│ Vitamin D:  {totals.get('total_vitamin_d_mcg', 0):>6.1f} mcg (RDA: 15mcg)   │ Vitamin C: {totals.get('total_vitamin_c_mg', 0):>6.1f} mg (RDA: 75-90mg) │")
+        lines.append(f"│ Potassium:  {totals.get('total_potassium_mg', 0):>6.0f} mg (RDA: 2600-3400mg)                             │")
+        lines.append("└─────────────────────────────────────────────────────────────────────────────┘")
+        
+        # Meals breakdown
+        lines.append("\n┌─ MEAL-BY-MEAL BREAKDOWN ───────────────────────────────────────────────────────┐")
+        
+        for meal_name in ["breakfast", "lunch", "dinner"]:
+            meal = meals.get(meal_name, {})
+            meal_pct = (meal.get('calories', 0) / totals['total_calories']) * 100 if totals['total_calories'] > 0 else 0
+            
+            emoji = {"breakfast": "🌅", "lunch": "🍽️", "dinner": "🍲"}[meal_name]
+            lines.append(f"│")
+            lines.append(f"│ {emoji} {meal_name.upper()}")
+            lines.append(f"│    Calories: {meal.get('calories', 0):>6.0f} ({meal_pct:>3.0f}%) | Protein: {meal.get('protein_g', 0):>6.1f}g")
+            
+            if meal.get('foods'):
+                for item in meal['foods']:
+                    food_key = item['food']
+                    food_name = self.calc.get_food_name(food_key)
+                    qty_g = item['quantity_g']
+                    
+                    # Format qty with unit
+                    serving_info = self.calc.get_serving_info(food_key)
+                    serving_unit = serving_info['serving_unit']
+                    serving_size = serving_info['serving_size']
+                    num_servings = qty_g / serving_size
+                    
+                    if serving_unit == "piece":
+                        qty_display = f"{num_servings:.0f} {serving_unit}s"
+                    elif serving_unit in ["cup", "slice"]:
+                        qty_display = f"{num_servings:.1f} {serving_unit}s"
+                    else:
+                        qty_display = f"{qty_g:.0f}g"
+                    
+                    lines.append(f"│    • {food_name:<35} {qty_display:>10}")
+        
+        lines.append("│")
+        lines.append("└─────────────────────────────────────────────────────────────────────────────┘")
+        
+        # Cost breakdown
+        lines.append("\n┌─ BUDGET BREAKDOWN ─────────────────────────────────────────────────────────────┐")
+        lines.append("│ Food Item            Daily Cost       Monthly Cost    % of Budget              │")
+        lines.append("├─────────────────────────────────────────────────────────────────────────────┤")
+        
+        for food_key, daily_cost in sorted(cost_info["cost_breakdown"].items(), key=lambda x: x[1], reverse=True):
+            food_name = self.calc.get_food_name(food_key)
+            monthly_cost = daily_cost * 30
+            pct = (daily_cost / cost_info["total_cost_bdt"] * 100) if cost_info["total_cost_bdt"] > 0 else 0
+            bar_width = int(pct / 5)
+            bar = "█" * bar_width
+            
+            lines.append(f"│ {food_name:<20} Tk. {daily_cost:>7.2f}/day      Tk. {monthly_cost:>8.2f}/month  {pct:>5.1f}% {bar:<20}│")
+        
+        lines.append("├─────────────────────────────────────────────────────────────────────────────┤")
+        lines.append(f"│ TOTAL:                Tk. {cost_info['total_cost_bdt']:>7.2f}/day      Tk. {cost_info['total_cost_bdt']*30:>8.2f}/month  100.0%                    │")
+        lines.append("└─────────────────────────────────────────────────────────────────────────────┘")
+        
+        # Cost efficiency
+        lines.append("\n┌─ COST EFFICIENCY METRICS ──────────────────────────────────────────────────────┐")
+        cost_per_1000_kcal = (cost_info['total_cost_bdt'] / totals['total_calories']) * 1000
+        protein_per_taka = totals['total_protein_g'] / cost_info['total_cost_bdt'] if cost_info['total_cost_bdt'] > 0 else 0
+        protein_per_100_taka = protein_per_taka * 100
+        
+        lines.append(f"│ Cost per 1000 kcal:         {cost_per_1000_kcal:.2f} টাকা                                          │")
+        lines.append(f"│ Protein per 1 Taka:         {protein_per_taka:.3f}g                                             │")
+        lines.append(f"│ Protein per 100 Taka:        {protein_per_100_taka:.1f}g                                            │")
+        lines.append("└─────────────────────────────────────────────────────────────────────────────┘")
+        
+        lines.append("")
+        lines.append("✓ This plan meets your daily nutrition targets while staying within your budget.")
+        lines.append("  Prepare these meals at home to save money and improve food quality!")
+        
+        return "\n".join(lines)
+    
     def save_meal_receipt_pdf(self,
                              filepath: str,
                              plan: List[Dict],
                              totals: Dict,
                              cost_info: Dict,
                              metrics: Dict = None,
-                             user_profile: Dict = None) -> bool:
+                             user_profile: Dict = None,
+                             meals: Dict = None) -> bool:
         """
         Save meal plan as PDF receipt.
         
@@ -326,65 +441,126 @@ class ReceiptFormatter:
             story.append(micronutrient_table)
             story.append(Spacer(1, 0.2*inch))
             
-            # Foods table
-            story.append(Paragraph("<b>Daily Foods (Itemized)</b>", getSampleStyleSheet()['Heading3']))
-            foods_data = [["Food Item", "Quantity", "Cost", "Protein", "Calories"]]
-            
-            for item in sorted(plan, key=lambda x: cost_info["cost_breakdown"].get(x["food"], 0), reverse=True):
-                food_key = item["food"]
-                food_name = self.calc.get_food_name(food_key)
-                cost = cost_info["cost_breakdown"].get(food_key, 0)
-                protein = item["protein_g"]
-                calories = item["calories"]
-                
-                # Format qty
-                serving_info = self.calc.get_serving_info(food_key)
-                serving_unit = serving_info["serving_unit"]
-                if serving_unit == "piece":
-                    qty_display = f"{item.get('num_servings', 1):.0f} pcs"
-                elif serving_unit in ["cup", "slice"]:
-                    qty_display = f"{item.get('num_servings', 1):.0f} {serving_unit}s"
-                else:
-                    qty_display = f"{item['quantity_g']:.0f}g"
-                
-                foods_data.append([
-                    food_name[:25],
-                    qty_display,
-                    f"Tk. {cost:.2f}",
-                    f"{protein:.1f}g",
-                    f"{calories:.0f} kcal"
-                ])
-            
-            # Add total row
+            # Calculate totals for later use
             total_cost = cost_info["total_cost_bdt"]
             total_protein = totals["total_protein_g"]
             total_calories = totals["total_calories"]
-            foods_data.append([
-                "<b>TOTAL (Daily)</b>",
-                "",
-                f"<b>Tk. {total_cost:.2f}</b>",
-                f"<b>{total_protein:.1f}g</b>",
-                f"<b>{total_calories:.0f} kcal</b>"
-            ])
             
-            foods_table = Table(foods_data, colWidths=[2.2*inch, 1.2*inch, 1*inch, 1*inch, 1.1*inch])
-            foods_table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#4CAF50')),
-                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-                ('ALIGN', (1, 0), (-1, -1), 'CENTER'),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0, 0), (-1, 0), 10),
-                ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
-                ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#F1F8E9')),
-                ('GRID', (0, 0), (-1, -1), 1, colors.grey),
-                ('PADDING', (0, 0), (-1, -1), 6),
-                ('FONTSIZE', (0, 1), (-1, -2), 9),
-            ]))
-            story.append(foods_table)
-            story.append(Spacer(1, 0.15*inch))
-            
-            # Cost breakdown table
+            # Meal-by-meal breakdown (if available)
+            if meals:
+                story.append(Paragraph("<b>Meal-by-Meal Breakdown</b>", getSampleStyleSheet()['Heading3']))
+                
+                for meal_name, meal_emoji in [("breakfast", "🌅"), ("lunch", "🍽️"), ("dinner", "🍲")]:
+                    if meal_name in meals:
+                        meal = meals[meal_name]
+                        meal_cal = meal.get("calories", 0)
+                        meal_pct = (meal_cal / totals["total_calories"] * 100) if totals["total_calories"] > 0 else 0
+                        meal_protein = meal.get("protein_g", 0)
+                        
+                        meal_title = f"{meal_emoji} {meal_name.upper()}: {meal_cal:.0f} kcal ({meal_pct:.0f}%) | {meal_protein:.1f}g protein"
+                        story.append(Paragraph(meal_title, getSampleStyleSheet()['Heading4']))
+                        
+                        # Foods in this meal
+                        meal_foods_data = [["Food Item", "Quantity", "Calories", "Protein"]]
+                        for food_item in meal.get("foods", []):
+                            food_key = food_item["food"]
+                            food_name = self.calc.get_food_name(food_key)
+                            qty_g = food_item["quantity_g"]
+                            calories = food_item["calories"]
+                            protein = food_item["protein_g"]
+                            
+                            # Format qty with unit
+                            serving_info = self.calc.get_serving_info(food_key)
+                            serving_unit = serving_info["serving_unit"]
+                            serving_size = serving_info["serving_size"]
+                            num_servings = qty_g / serving_size if serving_size > 0 else 1
+                            
+                            if serving_unit == "piece":
+                                qty_display = f"{num_servings:.0f} pcs"
+                            elif serving_unit in ["cup", "slice"]:
+                                qty_display = f"{num_servings:.1f} {serving_unit}s"
+                            else:
+                                qty_display = f"{qty_g:.0f}g"
+                            
+                            meal_foods_data.append([
+                                food_name[:25],
+                                qty_display,
+                                f"{calories:.0f} kcal",
+                                f"{protein:.1f}g"
+                            ])
+                        
+                        meal_foods_table = Table(meal_foods_data, colWidths=[2.5*inch, 1.5*inch, 1.2*inch, 1*inch])
+                        meal_foods_table.setStyle(TableStyle([
+                            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#E0E0E0')),
+                            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+                            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                            ('ALIGN', (1, 0), (-1, -1), 'CENTER'),
+                            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                            ('FONTSIZE', (0, 0), (-1, 0), 9),
+                            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+                            ('PADDING', (0, 0), (-1, -1), 5),
+                            ('FONTSIZE', (0, 1), (-1, -1), 8),
+                        ]))
+                        story.append(meal_foods_table)
+                        story.append(Spacer(1, 0.1*inch))
+                
+                story.append(Spacer(1, 0.1*inch))
+            else:
+                # Fall back to daily foods if meals not provided
+                story.append(Paragraph("<b>Daily Foods (Itemized)</b>", getSampleStyleSheet()['Heading3']))
+                foods_data = [["Food Item", "Quantity", "Cost", "Protein", "Calories"]]
+                
+                for item in sorted(plan, key=lambda x: cost_info["cost_breakdown"].get(x["food"], 0), reverse=True):
+                    food_key = item["food"]
+                    food_name = self.calc.get_food_name(food_key)
+                    cost = cost_info["cost_breakdown"].get(food_key, 0)
+                    protein = item["protein_g"]
+                    calories = item["calories"]
+                    
+                    # Format qty
+                    serving_info = self.calc.get_serving_info(food_key)
+                    serving_unit = serving_info["serving_unit"]
+                    if serving_unit == "piece":
+                        qty_display = f"{item.get('num_servings', 1):.0f} pcs"
+                    elif serving_unit in ["cup", "slice"]:
+                        qty_display = f"{item.get('num_servings', 1):.0f} {serving_unit}s"
+                    else:
+                        qty_display = f"{item['quantity_g']:.0f}g"
+                    
+                    foods_data.append([
+                        food_name[:25],
+                        qty_display,
+                        f"Tk. {cost:.2f}",
+                        f"{protein:.1f}g",
+                        f"{calories:.0f} kcal"
+                    ])
+                
+                # Add total row
+                foods_data.append([
+                    "<b>TOTAL (Daily)</b>",
+                    "",
+                    f"<b>Tk. {total_cost:.2f}</b>",
+                    f"<b>{total_protein:.1f}g</b>",
+                    f"<b>{total_calories:.0f} kcal</b>"
+                ])
+                
+                foods_table = Table(foods_data, colWidths=[2.2*inch, 1.2*inch, 1*inch, 1*inch, 1.1*inch])
+                foods_table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#4CAF50')),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                    ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                    ('ALIGN', (1, 0), (-1, -1), 'CENTER'),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('FONTSIZE', (0, 0), (-1, 0), 10),
+                    ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+                    ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#F1F8E9')),
+                    ('GRID', (0, 0), (-1, -1), 1, colors.grey),
+                    ('PADDING', (0, 0), (-1, -1), 6),
+                    ('FONTSIZE', (0, 1), (-1, -2), 9),
+                ]))
+                story.append(foods_table)
+                story.append(Spacer(1, 0.15*inch))
+
             story.append(Paragraph("<b>Budget Breakdown</b>", getSampleStyleSheet()['Heading3']))
             cost_data = [["Food Item", "Daily Cost", "Monthly Cost", "% of Budget"]]
             

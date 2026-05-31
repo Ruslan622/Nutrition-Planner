@@ -382,7 +382,8 @@ class MealPlanner:
     
     def distribute_to_meals(self, plan: List[Dict]) -> Dict:
         """
-        Distribute plan across meals (breakfast/lunch/dinner).
+        Intelligently distribute plan across meals (breakfast/lunch/dinner).
+        Uses food categories and meal compatibility to create realistic meals.
         
         Returns dict: {
             "breakfast": [items],
@@ -390,49 +391,63 @@ class MealPlanner:
             "dinner": [items],
         }
         """
+        meals = {
+            "breakfast": {"foods": [], "calories": 0, "protein_g": 0, "micronutrients": {}},
+            "lunch": {"foods": [], "calories": 0, "protein_g": 0, "micronutrients": {}},
+            "dinner": {"foods": [], "calories": 0, "protein_g": 0, "micronutrients": {}},
+        }
+        
         totals = self.calculate_plan_totals(plan)
         total_cals = totals["total_calories"]
         
-        meals = {
-            "breakfast": {"foods": [], "calories": 0, "protein_g": 0},
-            "lunch": {"foods": [], "calories": 0, "protein_g": 0},
-            "dinner": {"foods": [], "calories": 0, "protein_g": 0},
-        }
+        # Define meal preferences
+        breakfast_types = ["egg", "bread", "milk"]  # Breakfast staples
+        lunch_types = ["rice", "bread", "chicken", "fish", "lentil", "chickpea"]  # Lunch items
+        dinner_types = ["rice", "bread", "beef", "chicken", "fish", "lentil", "chickpea"]  # Dinner items
         
-        # Simple distribution: assign foods to meals
-        # Breakfast: lighter, quick (eggs, bread)
-        # Lunch: balanced (rice + protein)
-        # Dinner: similar to lunch
+        # Target distribution
+        breakfast_target = total_cals * 0.25  # 25% of daily
+        lunch_target = total_cals * 0.40      # 40% of daily
+        dinner_target = total_cals * 0.35     # 35% of daily
         
-        # Heuristic: protein sources → breakfast & dinner, carbs → lunch & dinner
-        breakfast_target = total_cals * 0.25
-        lunch_target = total_cals * 0.40
-        dinner_target = total_cals * 0.35
-        
+        # Sort by category compatibility
         remaining = list(plan)
         
-        for meal_name, target in [("breakfast", breakfast_target), 
-                                  ("lunch", lunch_target), 
-                                  ("dinner", dinner_target)]:
-            current_cal = 0
-            added = []
-            
-            for item in remaining:
-                if current_cal >= target * 0.8:  # 80% of target
-                    break
-                meals[meal_name]["foods"].append(item)
-                meals[meal_name]["calories"] += item["calories"]
-                meals[meal_name]["protein_g"] += item["protein_g"]
-                current_cal += item["calories"]
-                added.append(item)
-            
-            for item in added:
-                remaining.remove(item)
+        # Helper to add item to meal
+        def add_to_meal(item, meal_name):
+            meals[meal_name]["foods"].append(item)
+            meals[meal_name]["calories"] += item["calories"]
+            meals[meal_name]["protein_g"] += item["protein_g"]
+            for micronut in ["iron_mg", "calcium_mg", "vitamin_d_mcg", "vitamin_c_mg", "potassium_mg"]:
+                if micronut not in meals[meal_name]["micronutrients"]:
+                    meals[meal_name]["micronutrients"][micronut] = 0
+                meals[meal_name]["micronutrients"][micronut] += item.get(micronut, 0)
         
-        # Add remaining to largest meal
+        # Phase 1: Assign preferred items to meals
+        for meal_name, preference_list, target in [
+            ("breakfast", breakfast_types, breakfast_target),
+            ("lunch", lunch_types, lunch_target),
+            ("dinner", dinner_types, dinner_target),
+        ]:
+            for food_type in preference_list:
+                for item in list(remaining):
+                    if item["food"] == food_type:
+                        add_to_meal(item, meal_name)
+                        remaining.remove(item)
+                        if meals[meal_name]["calories"] >= target * 0.9:
+                            break
+                if meals[meal_name]["calories"] >= target * 0.9:
+                    break
+        
+        # Phase 2: Distribute remaining items to balance meals
         for item in remaining:
-            meals["dinner"]["foods"].append(item)
-            meals["dinner"]["calories"] += item["calories"]
-            meals["dinner"]["protein_g"] += item["protein_g"]
+            # Add to meal with lowest calories
+            meal_cals = {
+                "breakfast": meals["breakfast"]["calories"],
+                "lunch": meals["lunch"]["calories"],
+                "dinner": meals["dinner"]["calories"],
+            }
+            smallest_meal = min(meal_cals, key=meal_cals.get)
+            add_to_meal(item, smallest_meal)
         
         return meals
