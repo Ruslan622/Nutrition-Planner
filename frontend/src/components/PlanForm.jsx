@@ -2,6 +2,7 @@ import { useState } from "react";
 import AgeInput from "./AgeInput";
 import WeightInput from "./WeightInput";
 import HeightInput from "./HeightInput";
+import ActivityLevelInput from "./ActivityLevelInput";
 import GoalDropdown from "./GoalDropdown";
 
 export default function PlanForm({ onGeneratePlan, isLoading }) {
@@ -9,6 +10,7 @@ export default function PlanForm({ onGeneratePlan, isLoading }) {
     age: "",
     weight: "",
     height: "",
+    activity_level: 3,
     goal: "",
   });
 
@@ -36,6 +38,7 @@ export default function PlanForm({ onGeneratePlan, isLoading }) {
       <AgeInput value={formData.age} onChange={(val) => updateField("age", val)} />
       <WeightInput value={formData.weight} onChange={(val) => updateField("weight", val)} />
       <HeightInput value={formData.height} onChange={(val) => updateField("height", val)} />
+      <ActivityLevelInput value={formData.activity_level} onChange={(val) => updateField("activity_level", val)} />
       <GoalDropdown value={formData.goal} onChange={(val) => updateField("goal", val)} />
       
       <button type="submit" disabled={isLoading}>
