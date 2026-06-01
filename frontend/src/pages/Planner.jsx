@@ -27,28 +27,39 @@ export default function Planner() {
   };
 
   return (
-    <div>
-      <h1>Nutrition Planner</h1>
+    <div className="planner-page">
+      <div className="planner-header">
+        <h1>🥗 Nutrition Planner</h1>
+        <p style={{ color: '#666', marginTop: '10px', fontSize: '1.1em' }}>
+          Create personalized meal plans based on your goals
+        </p>
+      </div>
       
       {!planData ? (
-        <>
+        <div className="form-container">
           <PlanForm onGeneratePlan={handleGeneratePlan} isLoading={isLoading} />
-          {error && <div style={{ color: "red" }}>{error}</div>}
-        </>
+          {error && <div className="error-message">{error}</div>}
+        </div>
       ) : (
         <>
-          <div>
-            <label>Select Budget Mode:</label>
-            <select value={selectedMode} onChange={(e) => setSelectedMode(e.target.value)}>
-              <option value="cheapest">Cheapest</option>
-              <option value="balanced">Balanced</option>
-              <option value="premium">Premium</option>
+          <div className="mode-selector">
+            <label htmlFor="mode-select">📊 Select Budget Mode:</label>
+            <select 
+              id="mode-select"
+              value={selectedMode} 
+              onChange={(e) => setSelectedMode(e.target.value)}
+            >
+              <option value="cheapest">💰 Cheapest</option>
+              <option value="balanced">⚖️ Balanced</option>
+              <option value="premium">⭐ Premium</option>
             </select>
           </div>
           
           <ResultsDisplay planData={planData} selectedMode={selectedMode} />
           
-          <button onClick={() => setPlanData(null)}>← Back to Form</button>
+          <button className="back-button" onClick={() => setPlanData(null)}>
+            ← Back to Form
+          </button>
         </>
       )}
     </div>
