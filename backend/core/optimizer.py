@@ -216,10 +216,10 @@ class Optimizer:
                 target_protein_g=target_protein_g,
                 target_fat_g=target_fat_g,
                 target_carb_g=target_carb_g,
-                tolerance_calories=tolerance_calories * 1.5,
-                tolerance_protein=tolerance_protein * 1.5,
+                tolerance_calories=tolerance_calories * 2,
+                tolerance_protein=tolerance_protein * 2,
                 enforce_variety=False,
-                max_foods=5
+                max_foods=6
             )
             if plan:
                 candidates.append(plan)
@@ -263,14 +263,21 @@ class Optimizer:
         variety_weight = mode_config["variety_weight"]
         quality_weight = mode_config["quality_weight"]
         
-        for plan in plans:
+        daily_costs = [self.cc.calculate_daily_cost(p) for p in plans]
+        min_cost = min(daily_costs) if daily_costs else 1
+        max_cost = max(daily_costs) if daily_costs else 1
+        cost_range = max(max_cost - min_cost, 1)
+        
+        for plan, daily_cost in zip(plans, daily_costs):
+            
+            cost_score = 1.0 - ((daily_cost - min_cost) / cost_range)
             # ─── Calculate component scores ───────────────────────────────────
             
             # 1. COST SCORE (lower cost = higher score)
-            daily_cost = self.cc.calculate_daily_cost(plan)
+            # daily_cost = self.cc.calculate_daily_cost(plan)
             # Normalize: assume typical plan costs 100-250 BDT
-            cost_normalized = min(daily_cost / 250, 1.0)
-            cost_score = 1.0 - cost_normalized  # Invert: lower cost = higher score
+            # cost_normalized = min(daily_cost / 250, 1.0)
+            # cost_score = 1.0 - cost_normalized  # Invert: lower cost = higher score
             
             # 2. PROTEIN SCORE (how close to target)
             total_protein = sum(item.get("protein_g", 0) for item in plan)
@@ -363,11 +370,14 @@ class Optimizer:
                 tolerance_calories=tolerance_calories,
                 tolerance_protein=tolerance_protein,
                 budget_mode=mode,
-                enforce_variety=True
+                enforce_variety=False
             )
             
             if plan:
                 results[mode] = (plan, metrics)
+            
+            else:
+                print(f"Warning: Mode {mode} produced no plan -- skipping")
         
         return results
     

@@ -103,6 +103,34 @@ class MealPlanner:
         
         # Get foods sorted by protein density
         foods = self.calc.available_foods()
+        
+        
+        
+        carb_seeds = [f for f in ["rice", "bread"] if f in foods]
+        for seed in carb_seeds:
+            macros_100 = self.calc.get_food_macros(seed, 100)
+            base_qty = min(300, macros_100.get("max_serving_g", 300))
+            macros = self.calc.get_food_macros(seed, base_qty)
+            if macros["calories"] / target_calories <= 0.40:
+                plan.append({
+                "food": seed,
+                "quantity_g": base_qty,
+                "calories": macros["calories"],
+                "protein_g": macros["protein_g"],
+                "fat_g": macros["fat_g"],
+                "carb_g": macros["carb_g"],
+                "fiber_g": macros["fiber_g"],
+                "iron_mg": macros.get("iron_mg", 0),
+                "calcium_mg": macros.get("calcium_mg", 0),
+                "vitamin_d_mcg": macros.get("vitamin_d_mcg", 0),
+                "vitamin_c_mg": macros.get("vitamin_c_mg", 0),
+                "potassium_mg": macros.get("potassium_mg", 0),
+                "category": macros_100.get("category", "carb"),
+            })
+            current_calories += macros["calories"]
+            current_protein += macros["protein_g"]
+            categories_covered.add(macros_100.get("category", "carb"))
+            break  # one carb seed is enough
         food_scores = {}
         for food_key in foods:
             macros = self.calc.get_food_macros(food_key, 100)
@@ -134,6 +162,10 @@ class MealPlanner:
             if (abs(calories_needed) <= tolerance_calories and 
                 abs(protein_needed) <= tolerance_protein):
                 break
+            
+            cal_per_100 = macros_100.get("calories", 1)
+            dynamic_max = int((calories_needed / (cal_per_100 / 100)) * 1.3)
+            max_qty = max(min_qty, min(800, dynamic_max))
             
             # Find best quantity that respects constraints
             best_quantity = None
@@ -204,9 +236,8 @@ class MealPlanner:
         
         for num_foods in range(1, min(5, max_foods + 1)):
             for food_combo in combinations(foods, num_foods):
-                for quantities in self._generate_quantity_combinations(
-                    food_combo, num_foods, 6
-                ):
+                iterations = max(12, int(target_calories / 200))
+                for quantities in self._generate_quantity_combinations(food_combo, num_foods, iterations):
                     plan = []
                     total_cals = 0
                     total_protein = 0

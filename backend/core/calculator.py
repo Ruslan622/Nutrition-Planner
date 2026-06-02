@@ -11,7 +11,7 @@ from pathlib import Path
 class NutritionCalculator:
     """Calculate nutrition targets for bulk, cut, maintain goals."""
     
-    def __init__(self, config_file: str = None):
+    def __init__(self, config_file: str | None = None):
         """
         Initialize calculator with config.
         
