@@ -164,7 +164,7 @@ class Optimizer:
         if budget_mode == "cheapest":
             # Cheapest: Lower protein demand (100g instead of 120g)
             # This allows planner to use more rice/bread instead of expensive proteins
-            for max_foods in [3, 4, 5]:
+            for max_foods in [6, 8, 10]:
                 plan = self.planner.generate_plan(
                     target_calories=target_calories,
                     target_protein_g=max(target_protein_g * 0.85, 80),  # 15% lower
@@ -181,7 +181,7 @@ class Optimizer:
         elif budget_mode == "premium":
             # Premium: Higher protein demand (140g+ instead of 120g)
             # This forces planner to include expensive high-quality proteins
-            for max_foods in [4, 5, 6]:
+            for max_foods in [6, 8, 10]:
                 plan = self.planner.generate_plan(
                     target_calories=target_calories,
                     target_protein_g=target_protein_g * 1.15,  # 15% higher

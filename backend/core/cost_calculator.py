@@ -144,7 +144,7 @@ class CostCalculator:
             return 0
         return round(1000 / calories_per_taka, 2)
     
-    def compare_plans(self, plans: List[List[Dict]]) -> Dict:
+    def compare_plans(self, plans: List[List[Dict]]) -> List[Dict]:
         """
         Compare multiple meal plans on cost and efficiency metrics.
         
@@ -152,7 +152,7 @@ class CostCalculator:
             plans: List of meal plans to compare
             
         Returns:
-            Dict with comparison metrics for each plan
+            List of dicts with comparison metrics for each plan
         """
         comparison = []
         

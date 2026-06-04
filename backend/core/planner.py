@@ -154,13 +154,20 @@ class MealPlanner:
             if any(item["food"] == food_key for item in plan):
                 continue
             
+            min_macros = self.calc.get_food_macros(food_key, min_qty)
+            print(f"DEBUG food: {food_key} | current_pro={current_protein:.1f} | min_serving_pro={min_macros['protein_g']:.1f} | would_total={current_protein + min_macros['protein_g']:.1f} | limit={target_protein_g * 1.3:.1f}")
+        
+            if current_protein + min_macros["protein_g"] > target_protein_g * 1.3:
+                continue
+            if current_protein + min_macros["protein_g"] > target_protein_g * 1.3:
+                continue
             # Calculate remaining needs
             calories_needed = target_calories - current_calories
             protein_needed = target_protein_g - current_protein
             
             # Skip if targets met
             if (abs(calories_needed) <= tolerance_calories and 
-                abs(protein_needed) <= tolerance_protein):
+                abs(protein_needed) <= tolerance_protein * 3):
                 break
             
             cal_per_100 = max(macros_100.get("calories", 1), 1)
@@ -186,8 +193,13 @@ class MealPlanner:
                 
                 # Calculate distance to targets
                 cal_distance = abs(test_calories - target_calories)
-                pro_distance = abs(test_protein - target_protein_g)
-                score = cal_distance + (pro_distance * 0.5)
+
+                # Penalize overshoot much harder than undershoot
+                pro_over = max(0, test_protein - target_protein_g)
+                pro_under = max(0, target_protein_g - test_protein)
+                pro_distance = (pro_over * 3.0) + (pro_under * 0.5)
+
+                score = cal_distance + pro_distance
                 
                 if score < best_score:
                     best_score = score
@@ -222,7 +234,8 @@ class MealPlanner:
             # Check variety if enforced
             if not enforce_variety or self._check_variety(plan):
                 return plan
-        
+            
+        print(f"DEBUG greedy: cal_diff={cal_diff:.1f} tol={tolerance_calories:.1f} | pro_diff={pro_diff:.1f} tol={tolerance_protein:.1f} | foods={[i['food'] for i in plan]} | total_cal={current_calories:.0f}")
         return []
     
     def _brute_force_with_constraints(self,
