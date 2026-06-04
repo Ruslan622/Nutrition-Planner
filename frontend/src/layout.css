@@ -1,0 +1,85 @@
+/* Layout styles - Containers, grids, and page structure */
+
+/* Planner Page */
+.planner-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.planner-header {
+  text-align: center;
+}
+
+.form-container {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Results Container */
+.results-container {
+  background: white;
+  border-radius: 20px;
+  padding: 24px 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.mode-selector {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.mode-selector label {
+  margin: 0;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.mode-selector select {
+  flex: 1;
+  min-width: 180px;
+}
+
+/* Error Message */
+.error-message {
+  background: linear-gradient(135deg, #f44336 0%, #e53935 100%);
+  color: white;
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  #root {
+    padding: 12px 10px;
+  }
+
+  h1 {
+    font-size: 1.3em;
+  }
+
+  h2 {
+    font-size: 1.1em;
+  }
+
+  .results-container, .form-container {
+    padding: 16px;
+  }
+
+  .mode-selector {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .mode-selector select {
+    min-width: 100%;
+  }
+}

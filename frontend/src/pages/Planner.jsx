@@ -14,10 +14,9 @@ export default function Planner() {
     setError(null);
     
     try {
-      // Call backend API
       const result = await generatePlan(formData);
       setPlanData(result);
-      setSelectedMode("balanced"); // Default to balanced mode
+      setSelectedMode("balanced");
     } catch (error) {
       setError(error.message || "Error generating plan. Make sure the backend is running on port 5000");
       console.error("Error:", error);
@@ -29,7 +28,7 @@ export default function Planner() {
   return (
     <div className="planner-page">
       <div className="planner-header">
-        <h1>🥗 Nutrition Planner</h1>
+        <h1>Nutrition Planner</h1>
         <p style={{ color: '#666', marginTop: '10px', fontSize: '1.1em' }}>
           Create personalized meal plans based on your goals
         </p>
@@ -43,22 +42,22 @@ export default function Planner() {
       ) : (
         <>
           <div className="mode-selector">
-            <label htmlFor="mode-select">📊 Select Budget Mode:</label>
+            <label htmlFor="mode-select">Select Budget Mode:</label>
             <select 
               id="mode-select"
               value={selectedMode} 
               onChange={(e) => setSelectedMode(e.target.value)}
             >
-              <option value="cheapest">💰 Cheapest</option>
-              <option value="balanced">⚖️ Balanced</option>
-              <option value="premium">⭐ Premium</option>
+              <option value="cheapest">Cheapest</option>
+              <option value="balanced">Balanced</option>
+              <option value="premium">Premium</option>
             </select>
           </div>
           
           <ResultsDisplay planData={planData} selectedMode={selectedMode} />
           
           <button className="back-button" onClick={() => setPlanData(null)}>
-            ← Back to Form
+            Back to Form
           </button>
         </>
       )}

@@ -96,14 +96,18 @@ def generate_plan(user: UserProfile):
             goal=user.goal
         )
         
+        print(f"DEBUG: tdee={tdee}, cal={targets['target_calories']}, pro={targets['target_protein_g']}")
+        target_calories = targets["target_calories"]
+        target_protein_g = targets["target_protein_g"]
+
         # Generate plans for all modes
         plans_by_mode = opt.generate_plans_all_modes(
             target_calories=targets["target_calories"],
             target_protein_g=targets["target_protein_g"],
             target_fat_g=targets["target_fat_g"],
             target_carb_g=targets["target_carb_g"],
-            tolerance_calories=150,
-            tolerance_protein=10,
+            tolerance_calories=max(150, target_calories * 0.05),
+            tolerance_protein=max(10, target_protein_g * 0.05),
         )
         
         if not plans_by_mode:
@@ -132,9 +136,13 @@ def generate_plan(user: UserProfile):
         
         return response
         
+    except HTTPException:
+     raise  # re-raise 400s cleanly without wrapping them as 500
     except Exception as e:
         print(f"Error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Plan generation failed: {str(e)}")
 
 
 if __name__ == "__main__":

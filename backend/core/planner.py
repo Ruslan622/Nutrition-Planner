@@ -154,27 +154,32 @@ class MealPlanner:
             if any(item["food"] == food_key for item in plan):
                 continue
             
-            min_macros = self.calc.get_food_macros(food_key, min_qty)
-            print(f"DEBUG food: {food_key} | current_pro={current_protein:.1f} | min_serving_pro={min_macros['protein_g']:.1f} | would_total={current_protein + min_macros['protein_g']:.1f} | limit={target_protein_g * 1.3:.1f}")
-        
-            if current_protein + min_macros["protein_g"] > target_protein_g * 1.3:
-                continue
-            if current_protein + min_macros["protein_g"] > target_protein_g * 1.3:
-                continue
             # Calculate remaining needs
             calories_needed = target_calories - current_calories
             protein_needed = target_protein_g - current_protein
-            
+
             # Skip if targets met
-            if (abs(calories_needed) <= tolerance_calories and 
+            if (abs(calories_needed) <= tolerance_calories and
                 abs(protein_needed) <= tolerance_protein * 3):
                 break
-            
+
             cal_per_100 = max(macros_100.get("calories", 1), 1)
+            pro_per_100 = max(macros_100.get("protein_g", 0.1), 0.1)
+
+            # Cap quantity by remaining calories
             if calories_needed > 0:
-                dynamic_max = int((calories_needed / (cal_per_100 / 100)) * 1.3)
+                max_by_calories = int((calories_needed / (cal_per_100 / 100)) * 1.3)
             else:
-                dynamic_max = min_qty 
+                max_by_calories = min_qty
+
+            # Cap quantity by remaining protein budget
+            if protein_needed > 0:
+                max_by_protein = int((protein_needed / (pro_per_100 / 100)) * 1.2)
+            else:
+                max_by_protein = min_qty
+
+            # Use the more restrictive cap
+            dynamic_max = min(max_by_calories, max_by_protein)
             max_qty = max(min_qty + 50, min(800, dynamic_max))
             
             # Find best quantity that respects constraints

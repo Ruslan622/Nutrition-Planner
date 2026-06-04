@@ -1,0 +1,207 @@
+/* Meals Section - Breakfast, Lunch, Dinner cards */
+
+.meals-section {
+  margin-top: 20px;
+}
+
+.meal {
+  border-bottom: 1px solid #eee;
+  padding: 16px 0;
+}
+
+.meal:last-child {
+  border-bottom: none;
+}
+
+/* Meal Header */
+.meal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.meal-title {
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.meal-calories {
+  font-size: 1em;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+/* Food Items */
+.food-item {
+  display: grid;
+  grid-template-columns: 1.5fr repeat(4, 1fr);
+  align-items: center;
+  padding: 8px 0;
+  font-size: 0.9em;
+  gap: 8px;
+}
+
+.food-name {
+  color: #333;
+  font-weight: 500;
+}
+
+.food-grams {
+  color: #999;
+  font-size: 0.85em;
+}
+
+.food-macro {
+  text-align: center;
+  font-weight: 500;
+}
+
+.food-macro.protein {
+  color: #e91e63;
+}
+
+.food-macro.fats {
+  color: #2196f3;
+}
+
+.food-macro.carbs {
+  color: #8bc34a;
+}
+
+.food-cal {
+  text-align: right;
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .food-item {
+    grid-template-columns: 1.2fr repeat(4, 1fr);
+    font-size: 0.8em;
+    gap: 4px;
+  }
+}
+
+/* Micronutrients Section */
+.micronutrients-section {
+  margin-top: 24px;
+  padding: 16px;
+  background: #f9f9f9;
+  border-radius: 12px;
+}
+
+.micronutrients-section h3 {
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.micronutrients-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.micronutrients-grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.micronutrients-grid strong {
+  font-size: 0.85em;
+  color: #666;
+}
+
+.micronutrients-grid span {
+  font-size: 1em;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+/* Cost Section */
+.cost-section {
+  margin-top: 24px;
+  padding: 16px;
+  background: #e8f5e9;
+  border-radius: 12px;
+}
+
+.cost-section h3 {
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #2e7d32;
+  margin-bottom: 12px;
+}
+
+.cost-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.cost-grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cost-grid strong {
+  font-size: 0.85em;
+  color: #666;
+}
+
+.cost-grid span {
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #2e7d32;
+}
+
+/* Foods List Section */
+.foods-list-section {
+  margin-top: 24px;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+}
+
+.foods-list-section h3 {
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.foods-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.food-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 0.9em;
+}
+
+.food-row:last-child {
+  border-bottom: none;
+}
+
+.food-row span:first-child {
+  font-weight: 500;
+  color: #333;
+}
+
+.food-row span:not(:first-child) {
+  color: #666;
+  text-align: right;
+}
