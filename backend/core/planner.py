@@ -127,10 +127,10 @@ class MealPlanner:
                 "potassium_mg": macros.get("potassium_mg", 0),
                 "category": macros_100.get("category", "carb"),
             })
-            current_calories += macros["calories"]
-            current_protein += macros["protein_g"]
-            categories_covered.add(macros_100.get("category", "carb"))
-            break  # one carb seed is enough
+                current_calories += macros["calories"]
+                current_protein += macros["protein_g"]
+                categories_covered.add(macros_100.get("category", "carb"))
+                break  # one carb seed is enough
         food_scores = {}
         for food_key in foods:
             macros = self.calc.get_food_macros(food_key, 100)
@@ -163,9 +163,12 @@ class MealPlanner:
                 abs(protein_needed) <= tolerance_protein):
                 break
             
-            cal_per_100 = macros_100.get("calories", 1)
-            dynamic_max = int((calories_needed / (cal_per_100 / 100)) * 1.3)
-            max_qty = max(min_qty, min(800, dynamic_max))
+            cal_per_100 = max(macros_100.get("calories", 1), 1)
+            if calories_needed > 0:
+                dynamic_max = int((calories_needed / (cal_per_100 / 100)) * 1.3)
+            else:
+                dynamic_max = min_qty 
+            max_qty = max(min_qty + 50, min(800, dynamic_max))
             
             # Find best quantity that respects constraints
             best_quantity = None
@@ -244,11 +247,10 @@ class MealPlanner:
                     valid = True
                     
                     for food_key, qty in zip(food_combo, quantities):
+                        food_cfg = self.calc.get_food_macros(food_key, 100)  # config dict has constraints
+                        min_qty = food_cfg.get("min_serving_g", 50)
+                        max_qty = food_cfg.get("max_serving_g", 500)
                         macros = self.calc.get_food_macros(food_key, qty)
-                        
-                        # Check serving constraint
-                        min_qty = macros.get("min_serving_g", 50)
-                        max_qty = macros.get("max_serving_g", 500)
                         if not (min_qty <= qty <= max_qty):
                             valid = False
                             break

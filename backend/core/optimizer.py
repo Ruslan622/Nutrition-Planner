@@ -95,6 +95,8 @@ class Optimizer:
         Returns:
             Tuple (optimized_plan, optimization_metrics)
         """
+        tolerance_calories = max(tolerance_calories, target_calories * 0.05)
+        tolerance_protein = max(tolerance_protein, target_protein_g * 0.05)
         
         if budget_mode not in self.MODES:
             print(f"WARNING: Unknown budget mode '{budget_mode}', using 'balanced'")
