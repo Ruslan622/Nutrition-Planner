@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import AgeInput from "./AgeInput";
 import WeightInput from "./WeightInput";
 import HeightInput from "./HeightInput";
@@ -44,6 +45,12 @@ export default function PlanForm({ onGeneratePlan, isLoading }) {
       <button type="submit" disabled={isLoading}>
         {isLoading ? "Generating Plan..." : "Generate Plan"}
       </button>
+
+      <Link to="/custom-plan" className="custom-plan-btn">
+          Create Your Own Meal Plan
+      </Link>
+
+      
     </form>
   );
 }
