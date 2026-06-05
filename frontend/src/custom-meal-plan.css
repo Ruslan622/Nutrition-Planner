@@ -1,0 +1,128 @@
+/* Custom Meal Planner Container Base setup */
+.custom-meal-planner {
+  max-width: 450px; /* Scaled closer to mobile UI mock layout size */
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.custom-meal-header h1 {
+  font-size: 1.8em;
+  font-weight: 700;
+  color: #000000;
+}
+
+/* Meal Section Outer Box */
+.meal-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* Meal Header (Stays Light/Dark Gray text color, matching the image) */
+.meal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 4px;
+}
+
+.meal-header h3 {
+  font-size: 1.15em;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.meal-calories {
+  font-size: 1em;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+/* Colored Card Body container wrapping your dynamic meal entries */
+.meal-card-body {
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  color: white;
+}
+
+/* Color Palette Overrides to target card-bodies explicitly */
+.meal-card-body.meal-breakfast {
+  background: #024731; /* Deep forest green to match image */
+}
+
+.meal-card-body.meal-lunch {
+  background: #f06b50; /* Terracotta Coral */
+}
+
+.meal-card-body.meal-dinner {
+  background: #5f3dc4; /* Deep Royal Violet Purple */
+}
+
+/* Inside Item styling */
+.meal-items {
+  display: flex;
+  flex-direction: column;
+}
+
+.meal-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Remove bottom line highlight decoration from last element item */
+.meal-item:last-child {
+  border-bottom: none;
+}
+
+.meal-item-content h4 {
+  font-size: 1.15em;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 6px 0;
+}
+
+.meal-item-content p {
+  font-size: 0.9em;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0;
+}
+
+.meal-item-image {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+/* Add More Layout Button Style adjustments */
+.add-more-btn {
+  background: #ffffff;
+  color: #024731; /* Swaps smartly inside your sections */
+  border: none;
+  padding: 14px 20px;
+  border-radius: 14px;
+  font-size: 1em;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+}
+
+.meal-lunch .add-more-btn {
+  color: #f06b50;
+}
+
+.meal-dinner .add-more-btn {
+  color: #5f3dc4;
+}
